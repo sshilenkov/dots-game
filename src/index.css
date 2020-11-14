@@ -1,0 +1,6 @@
+.game-dots {
+    display: flex;
+    justify-content: space-between;
+    border: 2px solid #efefef;
+    border-radius: 5px;
+}

@@ -1,0 +1,35 @@
+.area__row {
+    display: flex;
+}
+
+.area__row:last-child .area__col {
+    border-bottom: 1px solid #000;
+}
+
+.area__col {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
+    border-top: 1px solid #000;
+    border-left: 1px solid #000;
+}
+
+.area__col:last-child {
+    border-right: 1px solid #000;
+}
+
+.area__col--illuminated {
+    background-color: blue;
+}
+
+.area__col--illuminated:hover {
+    cursor: pointer;
+}
+
+.area__col--user {
+    background-color: green;
+}
+
+.area__col--comp {
+    background-color: red;
+}
