@@ -2,7 +2,6 @@ import React from 'react';
 import './GameArea.css';
 
 import classnames from 'classnames';
-import axios from 'axios';
 
 import { sectionChange, gameOver } from 'redux/actions/game';
 import { connect } from 'react-redux';
@@ -15,13 +14,8 @@ const enhance = connect(
 class GameArea extends React.Component {
     constructor(props) {
         super(props);
-        const { gameSchema } = props;
 
-        this.userPoints = 0;
-        this.compPoints = 0;
-        this.defferedSchema = [];
-        this.randX = Math.floor(Math.random() * gameSchema.length);
-        this.randY = Math.floor(Math.random() * gameSchema.length);
+        this.resetGameData();
     }
 
     componentDidUpdate() {
@@ -29,15 +23,17 @@ class GameArea extends React.Component {
     }
 
     setGameplay() {
-        const { gameIsOn, delay } = this.props;
+        const { gameIsOn, delay, gameSchema } = this.props;
         
         if (gameIsOn) {
             clearTimeout(this.gameInterval);
             this.gameInterval = setTimeout(() => {
+                this.defferedSchema = JSON.parse(JSON.stringify(gameSchema));
                 this.checkPrevSection();
                 this.gameLogic();
+                this.defferedSectionChange();
             }, delay);
-        } else {
+        } else if (gameIsOn !== null) {
             clearTimeout(this.gameInterval);
             this.resetGameData();
         }
@@ -48,67 +44,54 @@ class GameArea extends React.Component {
         
         if (this.randX !== undefined && this.randY !== undefined) {
             if (gameSchema[this.randX][this.randY] === 'O') {
-                let newSchema = [...gameSchema];
-                newSchema[this.randX][this.randY] = '-';
-                this.defferedSchema = newSchema;
+                this.defferedSchema[this.randX][this.randY] = '-';
                 this.compPoints++;
             }
         }
     }
 
     defferedSectionChange() {
+        const { sectionChange } = this.props;
+
         if (this.defferedSchema.length) {
             sectionChange(this.defferedSchema);
-            this.defferedSchema = [];
         }
     }
 
     randCoord() {
         const { gameSchema } = this.props;
-
+        
         while (gameSchema[this.randX][this.randY] !== '.') {
             this.randX = Math.floor(Math.random() * gameSchema.length);
             this.randY = Math.floor(Math.random() * gameSchema.length);
-        }
-    }
-
-    sendWinnerData(winnerName) {
-        const date = new Date();
-        const dateAndTime = `${date.getDate()}.${date.getMonth()}.${date.getYear()} ${date.getHours()}:${date.getMinutes()}`;
-        
-        axios.post('https://starnavi-frontend-test-task.herokuapp.com/winners', {
-            "winner": winnerName,
-            "date": dateAndTime
-        })
+        }        
     }
 
     resetGameData() {
-        const { gameSchema } = this.props;
-
         this.userPoints = 0;
         this.compPoints = 0;
         this.defferedSchema = [];
-        this.randX = Math.floor(Math.random() * gameSchema.length);
-        this.randY = Math.floor(Math.random() * gameSchema.length);
+        this.randX = Math.floor(Math.random() * 5);
+        this.randY = Math.floor(Math.random() * 5);
     }
 
     gameLogic() {
         const { gameSchema,
-                sectionChange,
                 gameOver,
                 userName } = this.props;
         const halfSections = gameSchema.length**2 / 2;
         const flatGameSchema = gameSchema.flat();
         
         if (this.userPoints > halfSections) {
+            this.defferedSectionChange();
             gameOver(userName);
-            this.sendWinnerData(userName);
             return;
         } else if (this.compPoints > halfSections) {
+            this.defferedSectionChange();
             gameOver('Computer');
-            this.sendWinnerData('Computer');
             return;
         } else if (this.userPoints === halfSections && this.compPoints === halfSections) {
+            this.defferedSectionChange();
             gameOver('Nobody');
             return;
         }
@@ -117,12 +100,7 @@ class GameArea extends React.Component {
             this.randCoord();
         }
 
-        if (this.userPoints < halfSections && this.compPoints < halfSections) {
-            let newSchema = [...gameSchema];
-            newSchema[this.randX][this.randY] = 'O';
-            sectionChange(newSchema);
-            this.defferedSectionChange();
-        }
+        this.defferedSchema[this.randX][this.randY] = 'O';
     }
 
     createArea(gameSchema) {
@@ -130,18 +108,16 @@ class GameArea extends React.Component {
             return(
                 <div key={index} className="area__row">
                     {item.map((el, i) => {
-                        let sectionClass = 'none';
+                        let sectionClass = '';
                         let click = null;
-                        let newSchema = [...gameSchema];
 
                         switch (el) {
                             case 'O':
                                 sectionClass = 'area__col--illuminated';
                                 click = (e) => {
                                     e.target.classList.add('area__col--user');
-                                    newSchema[index][i] = '+';
+                                    this.defferedSchema[index][i] = '+';
                                     this.userPoints++;
-                                    this.defferedSchema = newSchema;
                                 }
                                 break;
 
@@ -172,7 +148,7 @@ class GameArea extends React.Component {
 
     render() {
         const { gameSchema } = this.props;
-        const area = gameSchema.length ? this.createArea(gameSchema) : 'GameArea';
+        const area = gameSchema.length ? this.createArea(gameSchema) : <div className="area__empty"></div>;
 
         return(
             <div className="area">{area}</div>

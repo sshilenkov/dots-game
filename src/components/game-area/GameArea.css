@@ -1,3 +1,11 @@
+.area__empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 600px;
+    background-color: #c7c7c7;
+}
+
 .area__row {
     display: flex;
 }

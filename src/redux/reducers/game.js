@@ -11,7 +11,8 @@ const initState = {
     message: "Let's play?",
     delay: null,
     gameSchema: [],
-    gameIsOn: null
+    gameIsOn: null,
+    winner: ''
 }
 
 const game = (state = initState, action) => {
@@ -65,6 +66,7 @@ const game = (state = initState, action) => {
                 ...state,
                 message: `${action.winner} won!`,
                 gameIsOn: false,
+                winner: action.winner
             }
 
         default:

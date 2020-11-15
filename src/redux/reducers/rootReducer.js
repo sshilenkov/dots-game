@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
 import game from './game';
-import results from './results';
+import board from './board';
 
 const rootReducer = combineReducers({
     game,
-    results
+    board
 });
 
 export default rootReducer;
