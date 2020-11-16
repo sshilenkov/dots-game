@@ -22,7 +22,7 @@ function* gameOver() {
         const date = new Date();
         const minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
         const hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
-        const dateAndTime = `${hours}:${minutes}; ${date.getDate()}.${date.getMonth()}.${date.getFullYear()}`;
+        const dateAndTime = `${hours}:${minutes}; ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
         
         yield axios.post('https://starnavi-frontend-test-task.herokuapp.com/winners', {
             "winner": winner,
