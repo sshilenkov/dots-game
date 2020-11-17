@@ -36,12 +36,13 @@ class LeaderBoard extends React.Component {
     render() {
         const { currentPage } = this.state;
         const { results } = this.props;
+        results.reverse();
         const pageCount = results.length % 10 === 0 ? results.length / 10 : Math.floor(results.length / 10) + 1;
 
         return(
             <div className="leader-board">
                 <ListGroup className="leader-board__list">
-                    {results.reverse()
+                    {results
                         .slice(((currentPage - 1) * 10), (currentPage * 10))
                         .map(result => 
                             <ListGroup.Item key={result.id} variant="success" className="leader-board__item">
